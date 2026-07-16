@@ -235,8 +235,8 @@ Mirrors Apache/Nginx combined log format. Contains:
 | Member | Part | Description |
 |--------|------|-------------|
 | Howard | A + B | Environment setup + dataset generation (this repo) |
-| [Name] | C | Security controls implementation |
-| [Name] | D | Security testing (6 tests) |
+| Arlen | C | Security controls implementation |
+| Arlen | D | Security testing (6 tests) |
 | [Name] | E | Recommendations report |
 | [Name] | Deliverables | Executive summary + architecture diagram |
 
