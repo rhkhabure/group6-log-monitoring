@@ -52,17 +52,19 @@ filebeat.inputs:
     json.add_error_key: true              # if a line isn't valid JSON, flag it instead of crashing
 
 
-# ── OUTPUT: Send everything to OpenSearch ────────────────────────────────────
-output.opensearch:
+# ── OUTPUT: Send everything to OpenSearch via Elasticsearch-compatible API ────
+# OpenSearch is fully API-compatible with Elasticsearch.
+# Filebeat 8.x uses "output.elasticsearch" to talk to both.
+output.elasticsearch:
   hosts: ["http://opensearch:9200"]       # "opensearch" is the Docker service name
-  index: "group6-logs-%{+yyyy.MM.dd}"    # creates a daily index e.g. group6-logs-2026.07.15
+  index: "group6-logs-%{+yyyy.MM.dd}"    # creates a daily index e.g. group6-logs-2026.07.16
+  allow_older_versions: true              # allows Filebeat 8.x to talk to OpenSearch without version mismatch errors
 
 # ── INDEX TEMPLATE ────────────────────────────────────────────────────────────
-# Tells OpenSearch how to structure the index
 setup.template.name: "group6-logs"
 setup.template.pattern: "group6-logs-*"
 setup.template.enabled: true
-setup.ilm.enabled: false                  # disable lifecycle management (not needed for project)
+setup.ilm.enabled: false                  # disable index lifecycle management (not needed for project)
 
 # ── LOGGING ───────────────────────────────────────────────────────────────────
 # Filebeat's own operational logs (not the security logs — Filebeat's own status messages)
