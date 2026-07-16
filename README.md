@@ -244,5 +244,3 @@ Mirrors Apache/Nginx combined log format. Contains:
 
 *DSA 4030: Big Data Security — End of Semester Group Project*
 *United States International University — Africa*
-# group6-log-monitoring
-# group6-log-monitoring
