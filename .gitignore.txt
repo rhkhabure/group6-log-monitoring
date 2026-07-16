@@ -1,0 +1,32 @@
+# Generated log files — these are large and generated locally by each user
+# DO NOT commit these to GitHub
+logs/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# VS Code settings (optional — remove this line if you want to share VS Code config)
+.vscode/
+
+# Docker volumes (local Docker data)
+opensearch-data/
+
+# macOS junk
+.DS_Store
+
+# Windows junk
+Thumbs.db
+desktop.ini
+
+# Environment files (if you ever add secrets)
+.env
+*.env
