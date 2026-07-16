@@ -2,35 +2,34 @@
 # GROUP 6 — CENTRALIZED LOG MONITORING
 # DSA 4030: Big Data Security | USIU-Africa
 #
-# Starts three services:
-#   1. opensearch        → stores and indexes all logs (port 9200)
-#   2. opensearch-dashboards → visual dashboard / Kibana equivalent (port 5601)
-#   3. filebeat          → reads log files and ships them to OpenSearch
+# Simplified stack — Filebeat removed due to Filebeat 8.x vs
+# OpenSearch 2.x incompatibility (_license endpoint conflict).
+# Log ingestion handled by scripts/ingest_logs.py instead.
+#
+# Services:
+#   1. opensearch         → stores and indexes all logs (port 9200)
+#   2. opensearch-dashboards → visual dashboard (port 5601)
 #
 # Usage:
 #   Start:  docker compose up -d
 #   Stop:   docker compose down
-#   Logs:   docker compose logs -f
 # =============================================================
 
 version: '3.8'
 
 services:
 
-  # ── SERVICE 1: OpenSearch ──────────────────────────────────────────────────
-  # This is the database that stores and indexes all log events.
-  # Think of it as the DVR recording all CCTV footage.
   opensearch:
     image: opensearchproject/opensearch:2.13.0
     container_name: opensearch
     environment:
       - cluster.name=group6-cluster
       - node.name=opensearch-node1
-      - discovery.type=single-node          # single node (fine for dev/project)
-      - bootstrap.memory_lock=true          # prevents memory swapping (performance)
-      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m   # 512MB heap — adjust if you have more RAM
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
       - DISABLE_INSTALL_DEMO_CONFIG=false
-      - DISABLE_SECURITY_PLUGIN=true        # disables HTTPS for simplicity (fine for project)
+      - DISABLE_SECURITY_PLUGIN=true
     ulimits:
       memlock:
         soft: -1
@@ -39,65 +38,36 @@ services:
         soft: 65536
         hard: 65536
     volumes:
-      - opensearch-data:/usr/share/opensearch/data   # persists index data between restarts
+      - opensearch-data:/usr/share/opensearch/data
     ports:
-      - "9200:9200"    # REST API — used by Filebeat to push logs, and by Dashboards to query
-      - "9600:9600"    # performance monitoring port
+      - "9200:9200"
+      - "9600:9600"
     networks:
       - group6-net
     healthcheck:
-      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'"]
-      interval: 30s
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q 'green\\|yellow'"]
+      interval: 15s
       timeout: 10s
-      retries: 5
+      retries: 8
 
-  # ── SERVICE 2: OpenSearch Dashboards (the Kibana equivalent) ──────────────
-  # This is the visual dashboard your group will use to build charts and alerts.
-  # Think of it as the monitor screen in the CCTV control room.
   opensearch-dashboards:
     image: opensearchproject/opensearch-dashboards:2.13.0
     container_name: opensearch-dashboards
     ports:
-      - "5601:5601"    # web UI — open http://localhost:5601 in your browser
+      - "5601:5601"
     environment:
-      - OPENSEARCH_HOSTS=["http://opensearch:9200"]   # connects Dashboards to OpenSearch
-      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true        # keeps it simple (no HTTPS needed)
+      - OPENSEARCH_HOSTS=["http://opensearch:9200"]
+      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
     networks:
       - group6-net
     depends_on:
       opensearch:
-        condition: service_healthy    # waits for OpenSearch to be ready before starting
+        condition: service_healthy
 
-  # ── SERVICE 3: Filebeat ────────────────────────────────────────────────────
-  # This is the log shipper — it reads your three log files and sends each
-  # line/record to OpenSearch. Think of it as the CCTV cables.
-  filebeat:
-    image: elastic/filebeat:8.13.0
-    container_name: filebeat
-    user: root    # needs root to read log files on the host
-    volumes:
-      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro   # config (read-only)
-      - ./logs:/var/log/group6:ro    # mounts your logs/ folder into the container (read-only)
-    command: filebeat -e -strict.perms=false    # -e = log to stdout; strict.perms=false avoids permission errors on Windows
-    networks:
-      - group6-net
-    depends_on:
-      opensearch:
-        condition: service_healthy    # waits for OpenSearch before starting to ship logs
-    restart: on-failure               # restarts automatically if it crashes
-
-
-# ── VOLUMES ────────────────────────────────────────────────────────────────────
-# Named volume for OpenSearch data persistence.
-# Even if you restart containers, your indexed logs survive.
 volumes:
   opensearch-data:
     driver: local
 
-
-# ── NETWORKS ───────────────────────────────────────────────────────────────────
-# All three services share one private Docker network so they can talk to each other
-# using service names (e.g. "opensearch") instead of IP addresses.
 networks:
   group6-net:
     driver: bridge
