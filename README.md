@@ -303,8 +303,8 @@ Mirrors Apache/Nginx combined log format.
 | Member | Part | Description |
 |--------|------|-------------|
 | Howard (Richard) | A + B | Environment setup + dataset generation |
-| | C | Security controls implementation |
-| | D | Security testing (minimum 6 tests) |
+| Arlen| C | Security controls implementation |
+| Arlen| D | Security testing (minimum 6 tests) |
 | | E | Vulnerabilities, risks, recommendations |
 | | Deliverables | Executive summary + architecture diagram |
 
