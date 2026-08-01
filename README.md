@@ -305,8 +305,8 @@ Mirrors Apache/Nginx combined log format.
 | Howard (Richard) | A + B | Environment setup + dataset generation |
 | Arlen| C | Security controls implementation |
 | Arlen| D | Security testing (minimum 6 tests) |
-| | E | Vulnerabilities, risks, recommendations |
-| | Deliverables | Executive summary + architecture diagram |
+|Halima | E | Vulnerabilities, risks, recommendations |
+| Halima| Deliverables | Executive summary + architecture diagram |
 
 ---
 
